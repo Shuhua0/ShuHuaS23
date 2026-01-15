@@ -48,9 +48,9 @@
     .effect.collapsed .effect-content { display: none; }
     .effect .title::after { content: ' ▼'; font-size: 10px; opacity: 0.5; }
     .effect.collapsed .title::after { content: ' ▲'; }
-    /* 모바일 효과창 이름 폰트 1px 축소 (15->14) */
-    .opt-name { font-size: 14px !important; }
-    .opt-desc { font-size: 13px !important; }
+    /* 모바일 효과창 아이템 이름 폰트 13px로 변경 */
+    .opt-name { font-size: 13px !important; }
+    .opt-desc { font-size: 12px !important; }
   }
 
   .formation-base { font-size: 13px; font-weight: bold; margin-bottom: 8px; text-align: center; }
@@ -199,8 +199,8 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
       let currentCenterY = (minY + maxY) / 2, offsetY = y - currentCenterY; 
       pCells.forEach(p => drawHex(ctx, p.x, p.y + offsetY, HEX_SIZE, fill));
       let cX = x, cY = y;
-      // 군기 이름 크기 (모바일 18px로 1px 상향)
-      let nameSize = (window.innerWidth <= 768) ? 18 : 15;
+      // 군기 이름 글자 (모바일 20px)
+      let nameSize = (window.innerWidth <= 768) ? 20 : 15;
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, nameSize); return; }
       const img = loadedImages[itemName];
       if (img) {
@@ -225,8 +225,8 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
           sX += px; sY += py; drawHex(ctx, px, py, HEX_SIZE, fill);
       });
       let cX = sX / cells.length, cY = sY / cells.length;
-      // 보드 위 군기 이름 크기 (모바일 18px)
-      let boardNameSize = (window.innerWidth <= 768) ? 18 : 15;
+      // 보드 위 군기 글자 (모바일 20px)
+      let boardNameSize = (window.innerWidth <= 768) ? 20 : 15;
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, boardNameSize); return; }
       const img = loadedImages[itemName];
       if (img) {
@@ -287,8 +287,8 @@ function renderPalette() {
     var x = spacing + (i % itemsPerRow) * spacing, y = baseHeight + Math.floor(i / itemsPerRow) * rowSpacing;
     drawShape(pctx, x, y, it.type, "#333", true, it.name);
     if (currentCategory !== "군기") {
-      // 시설 이름 폰트 (모바일 19px로 1px 상향)
-      let fontSize = (window.innerWidth <= 768) ? 19 : 16;
+      // 시설 이름 (모바일 20px)
+      let fontSize = (window.innerWidth <= 768) ? 20 : 16;
       pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
       pctx.fillText(it.name, x, y + textOffset); 
     }
