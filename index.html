@@ -2,39 +2,70 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>정군산 전투 군기 시뮬레이터</title>
 <style>
-  body { margin:0; background:#111; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; }
-  .top-buttons { margin:15px; }
-  button { margin:0 5px; padding:12px 20px; cursor:pointer; background:#333; color:#fff; border:1px solid #555; border-radius:5px; font-weight:bold; font-size:14px; }
-  button:hover { background: #444; }
+  /* 2. 페이지 전체 스크롤 및 선택 방지 */
+  body { 
+    margin:0; 
+    background:#111; 
+    color:#fff; 
+    font-family:sans-serif; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    touch-action: none; /* 브라우저 기본 스크롤 동작 방지 */
+  }
+
+  .top-buttons { margin:10px; display: flex; flex-wrap: wrap; justify-content: center; }
+  button { 
+    margin:3px; padding:10px 15px; cursor:pointer; background:#333; color:#fff; 
+    border:1px solid #555; border-radius:5px; font-weight:bold; font-size:13px; 
+  }
   
-  /* 캔버스 스타일: 선택 방지 기능 추가 */
+  /* 3. 캔버스가 모바일 화면 너비를 넘지 않도록 설정 */
   canvas { 
     background:#111; 
     display:block; 
     margin:0 auto; 
     border:1px solid #333; 
     cursor: crosshair; 
-    /* 드래그 시 파란 블록 방지 */
+    max-width: 100%; /* 화면보다 크면 자동으로 줄어듦 */
+    height: auto;   /* 비율 유지 */
     user-select: none;
     -webkit-user-select: none;
   }
 
-  .effects { width:1100px; display:flex; justify-content:space-between; margin:15px 0; border-top:1px solid #444; padding-top:20px; }
-  .effect { width:32%; text-align:left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333; }
-  .effect .title { font-size:16px; color:#fff; margin-bottom:12px; font-weight:bold; text-align:center; border-bottom: 2px solid #555; padding-bottom: 8px; }
+  /* 4. 효과 박스 영역 모바일 대응 */
+  .effects { 
+    width: 95%; 
+    max-width: 1100px; 
+    display:flex; 
+    justify-content:space-between; 
+    margin:15px 0; 
+    border-top:1px solid #444; 
+    padding-top:20px; 
+  }
+  .effect { width:32%; text-align:left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333; }
+  .effect .title { font-size:14px; color:#fff; margin-bottom:12px; font-weight:bold; text-align:center; border-bottom: 2px solid #555; padding-bottom: 8px; }
   
   /* 설명 텍스트 스타일 (원본 보존) */
-  .formation-base { font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center; }
-  .opt-item { margin-top:10px; line-height:1.5; border-left: 3px solid #666; padding-left: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 0 5px 5px 0; }
-  .opt-name { font-weight: bold; font-size: 14px; color: #fff; display: block; margin-bottom: 3px; }
-  .opt-desc { font-size: 13px; color: #ddd; display: block; }
+  .formation-base { font-size: 14px; font-weight: bold; margin-bottom: 8px; text-align: center; }
+  .opt-item { margin-top:8px; line-height:1.4; border-left: 3px solid #666; padding-left: 10px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 0 5px 5px 0; }
+  .opt-name { font-weight: bold; font-size: 13px; color: #fff; display: block; margin-bottom: 2px; }
+  .opt-desc { font-size: 12px; color: #ddd; display: block; }
   
-  .bottom-buttons { margin:10px 0 20px 0; display: flex; align-items: center; }
-  .status-badge { margin-left: 20px; padding: 12px 20px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 16px; transition: 0.3s; }
+  .bottom-buttons { margin:10px 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .status-badge { margin: 5px; padding: 10px 15px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 14px; }
   
   #palette { background:#181818; border-top:1px solid #333; }
+
+  /* 5. 화면이 아주 작을 때(모바일 세로) 레이아웃 조정 */
+  @media (max-width: 600px) {
+    .effects { flex-direction: column; align-items: center; }
+    .effect { width: 100%; margin-bottom: 10px; }
+  }
 </style>
 </head>
 <body>
@@ -49,19 +80,18 @@
 <canvas id="board" width="1100" height="360"></canvas>
 
 <div class="effects">
-  <div class="effect"><div class="title" style="color:#2ecc71;">좌측 (초록)</div><div id="effect-left"></div></div>
-  <div class="effect"><div class="title" style="color:#e74c3c;">중심 (빨강)</div><div id="effect-center"></div></div>
-  <div class="effect"><div class="title" style="color:#3498db;">우측 (파랑)</div><div id="effect-right"></div></div>
+  <div class="effect"><div class="title" style="color:#2ecc71;">좌측</div><div id="effect-left"></div></div>
+  <div class="effect"><div class="title" style="color:#e74c3c;">중심</div><div id="effect-center"></div></div>
+  <div class="effect"><div class="title" style="color:#3498db;">우측</div><div id="effect-right"></div></div>
 </div>
 
 <div class="bottom-buttons">
   <button onclick="selectCategory('군기')">군기</button>
-  <button onclick="selectCategory('시설A')">대형 군사 시설A</button>
-  <button onclick="selectCategory('시설B')">대형 군사 시설B</button>
-  <span style="margin: 0 20px; color: #444; font-size: 20px;">|</span>
-  <button onclick="undoLast()" style="background:#555;">뒤로 가기</button>
+  <button onclick="selectCategory('시설A')">시설A</button>
+  <button onclick="selectCategory('시설B')">시설B</button>
+  <button onclick="undoLast()" style="background:#555;">뒤로</button>
   <button onclick="clearBoard()" style="background:#c0392b; border:none;">초기화</button>
-  <div class="status-badge" id="defense-score">방어치 : 0</div>
+  <div class="status-badge" id="defense-score">방어 : 0</div>
 </div>
 
 <canvas id="palette" width="1100" height="260"></canvas>
@@ -69,43 +99,29 @@
 <script src="script.js"></script>
 
 <script>
-  const canvases = [document.getElementById('board'), document.getElementById('palette')];
-  canvases.forEach(canvas => {
-    canvas.onselectstart = function() { return false; };
-    canvas.ondragstart = function() { return false; };
-  });
-</script>
-<script>
+  // 모바일 드래그 시 화면 밀림 방지 핵심 로직
   const canvases = [document.getElementById('board'), document.getElementById('palette')];
   
   canvases.forEach(canvas => {
-    // 1. 선택 및 드래그 기본 동작 방지 (PC용)
+    // 마우스 선택 방지
     canvas.onselectstart = function() { return false; };
     canvas.ondragstart = function() { return false; };
 
-    // 2. 모바일 터치 시 화면 스크롤 방지 (중요!)
-    // 터치가 시작될 때와 움직일 때 브라우저의 기본 스크롤 동작을 차단합니다.
+    // 터치 이벤트 발생 시 화면 스크롤 강제 차단
     canvas.addEventListener('touchstart', function(e) {
-      // 캔버스 안에서 터치가 발생하면 페이지 스크롤을 막음
-      if (e.target === canvas) {
-        // passive: false 설정과 함께 사용하여 스크롤을 즉시 차단
-      }
+      if (e.target === canvas) e.preventDefault();
     }, { passive: false });
 
     canvas.addEventListener('touchmove', function(e) {
-      if (e.target === canvas) {
-        // 이 코드가 있어야 손가락을 움직일 때 화면이 안 밀리고 아이템이 움직입니다.
-        e.preventDefault(); 
-      }
+      if (e.target === canvas) e.preventDefault();
     }, { passive: false });
   });
 
-  // 아이템을 드래그해서 캔버스 밖으로 나갈 때 화면이 흔들리는 것도 방지
-  window.addEventListener('touchmove', function(e) {
-    if (e.target.tagName === 'CANVAS') {
-      e.preventDefault();
-    }
+  // 페이지 전체 가로 드래그 방지
+  document.addEventListener('touchmove', function(e) {
+    if (e.scale !== 1) e.preventDefault(); // 핀치 줌 방지 보조
   }, { passive: false });
 </script>
+
 </body>
 </html>
