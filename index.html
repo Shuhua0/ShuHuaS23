@@ -48,7 +48,6 @@
     .effect.collapsed .effect-content { display: none; }
     .effect .title::after { content: ' ▼'; font-size: 10px; opacity: 0.5; }
     .effect.collapsed .title::after { content: ' ▲'; }
-    /* 모바일 효과창 아이템 이름 폰트 13px로 변경 */
     .opt-name { font-size: 13px !important; }
     .opt-desc { font-size: 12px !important; }
   }
@@ -199,8 +198,7 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
       let currentCenterY = (minY + maxY) / 2, offsetY = y - currentCenterY; 
       pCells.forEach(p => drawHex(ctx, p.x, p.y + offsetY, HEX_SIZE, fill));
       let cX = x, cY = y;
-      // 군기 이름 글자 (모바일 20px)
-      let nameSize = (window.innerWidth <= 768) ? 20 : 15;
+      let nameSize = (window.innerWidth <= 768) ? 20 : 18;
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, nameSize); return; }
       const img = loadedImages[itemName];
       if (img) {
@@ -225,8 +223,7 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
           sX += px; sY += py; drawHex(ctx, px, py, HEX_SIZE, fill);
       });
       let cX = sX / cells.length, cY = sY / cells.length;
-      // 보드 위 군기 글자 (모바일 20px)
-      let boardNameSize = (window.innerWidth <= 768) ? 20 : 15;
+      let boardNameSize = (window.innerWidth <= 768) ? 20 : 18;
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, boardNameSize); return; }
       const img = loadedImages[itemName];
       if (img) {
@@ -278,7 +275,8 @@ function renderPalette() {
   var items = currentCategory === "시설A" ? commonA.concat(boardSpecificA[currentBoard]) : categoryItems[currentCategory];
   var baseHeight, rowSpacing, textOffset;
   if(currentCategory === "군기") {
-      baseHeight = 40; rowSpacing = 95; textOffset = 52;
+      // 군기 헥사곤이 팔레트 상하 중앙에 오도록 높이 조정 (40 -> 65)
+      baseHeight = 65; rowSpacing = 95; textOffset = 52;
   } else {
       baseHeight = 85; rowSpacing = 110; textOffset = 65;
   }
@@ -287,7 +285,6 @@ function renderPalette() {
     var x = spacing + (i % itemsPerRow) * spacing, y = baseHeight + Math.floor(i / itemsPerRow) * rowSpacing;
     drawShape(pctx, x, y, it.type, "#333", true, it.name);
     if (currentCategory !== "군기") {
-      // 시설 이름 (모바일 20px)
       let fontSize = (window.innerWidth <= 768) ? 20 : 16;
       pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
       pctx.fillText(it.name, x, y + textOffset); 
