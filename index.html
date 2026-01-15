@@ -10,6 +10,7 @@
     display:flex; flex-direction:column; align-items:center;
     overflow-x: hidden; touch-action: none;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
+    padding-bottom: 120px; 
   }
   
   .top-buttons { margin:15px; display: flex; justify-content: center; width: 100%; flex-wrap: nowrap; }
@@ -34,18 +35,23 @@
   .effect { 
     width: 33.3%; text-align:left; background: rgba(255,255,255,0.05); 
     padding: 10px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333;
-    min-height: 120px;
+    transition: all 0.3s ease; overflow: hidden;
   }
   
-  /* 모바일 전용: 노트(효과창) 크기 확대 */
+  .effect .title { 
+    font-size:14px; color:#fff; margin-bottom:10px; font-weight:bold; text-align:center; 
+    border-bottom: 2px solid #555; padding-bottom: 5px; cursor: pointer;
+  }
+
   @media (max-width: 768px) {
-    .effect { min-height: 180px; padding: 12px; }
-    .effect .title { font-size: 16px !important; }
-    .opt-name { font-size: 14px !important; }
+    .effect.collapsed { min-height: 45px !important; height: 45px !important; }
+    .effect.collapsed .effect-content { display: none; }
+    .effect .title::after { content: ' ▼'; font-size: 10px; opacity: 0.5; }
+    .effect.collapsed .title::after { content: ' ▲'; }
+    .opt-name { font-size: 15px !important; }
     .opt-desc { font-size: 13px !important; }
   }
 
-  .effect .title { font-size:14px; color:#fff; margin-bottom:10px; font-weight:bold; text-align:center; border-bottom: 2px solid #555; padding-bottom: 5px; }
   .formation-base { font-size: 13px; font-weight: bold; margin-bottom: 8px; text-align: center; }
   .opt-item { margin-top:8px; line-height:1.4; border-left: 3px solid #666; padding-left: 8px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 0 5px 5px 0; }
   .opt-name { font-weight: bold; font-size: 12px; color: #fff; display: block; }
@@ -57,11 +63,7 @@
     flex-wrap: nowrap; gap: 4px;
   }
   .bottom-buttons button { padding: 8px 10px; font-size: 12px; flex-shrink: 0; }
-  
-  .status-badge { 
-    padding: 8px 12px; background: #222; border: 2px solid #fff; border-radius: 8px; 
-    color: #fff; font-weight: bold; font-size: 13px; white-space: nowrap;
-  }
+  .status-badge { padding: 8px 12px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 13px; }
   
   #palette { background:#181818; border-top:1px solid #333; margin-top: 10px; }
 </style>
@@ -78,9 +80,18 @@
 <canvas id="board" width="1100" height="360"></canvas>
 
 <div class="effects">
-  <div class="effect"><div class="title" style="color:#2ecc71;">좌측</div><div id="effect-left"></div></div>
-  <div class="effect"><div class="title" style="color:#e74c3c;">중심</div><div id="effect-center"></div></div>
-  <div class="effect"><div class="title" style="color:#3498db;">우측</div><div id="effect-right"></div></div>
+  <div class="effect" id="box-left">
+    <div class="title" style="color:#2ecc71;" onclick="toggleEffect('box-left')">좌측</div>
+    <div id="effect-left" class="effect-content"></div>
+  </div>
+  <div class="effect" id="box-center">
+    <div class="title" style="color:#e74c3c;" onclick="toggleEffect('box-center')">중심</div>
+    <div id="effect-center" class="effect-content"></div>
+  </div>
+  <div class="effect" id="box-right">
+    <div class="title" style="color:#3498db;" onclick="toggleEffect('box-right')">우측</div>
+    <div id="effect-right" class="effect-content"></div>
+  </div>
 </div>
 
 <div class="bottom-buttons">
@@ -93,19 +104,24 @@
   <div class="status-badge" id="defense-score">방어치 : 0</div>
 </div>
 
-<canvas id="palette" width="1100" height="260"></canvas>
+<canvas id="palette" width="1100" height="220"></canvas>
 
 <script>
-// --- [데이터 및 구성] ---
 const itemImages = {
   "목책(栅栏)": "https://i.imgur.com/nVMAJ2m.png", "치차(辎车)": "https://i.imgur.com/afcSPeq.png", "울타리(拒马)": "https://i.imgur.com/YcOXVbc.png",
   "깃발 수레(旌轩)": "https://i.imgur.com/JyTTiw9.png", "의장(医帐)": "https://i.imgur.com/4lBRS9S.png", "호교(辘桥)": "https://i.imgur.com/hFnnrv4.png",
   "전고(战鼓)": "https://i.imgur.com/Kze6RsC.png", "목수(木兽)": "https://i.imgur.com/FceMagP.png", "파장탑(破障塔)": "https://i.imgur.com/B2SIC96.png",
-  "인화차(引火车)": "https://i.imgur.com/U9Oezgp.png", "목우유마(木牛流马)": "https://i.imgur.com/VGm5noB.png", "경차(轻车)": "https://i.imgur.com/y5ampJD.png",
+  "인화차(引火车)": "https://i.imgur.com/U9Oezgp.png", "목우유마(木牛流马)": "https://i.imgur.com/VGm5noB.png", "경차(輕車)": "https://i.imgur.com/y5ampJD.png",
   "대항영(御敌营)": "https://i.imgur.com/elTTSPe.png", "연영(连营)": "https://i.imgur.com/eawBuwS.png", "사다리차(搭天车)": "https://i.imgur.com/IMHQI2u.png",
   "충차(冲车)": "https://i.imgur.com/HE7GYNM.png", "검문소(门岗)": "https://i.imgur.com/NVJvfMC.png", "벽력차(霹雳车)": "https://i.imgur.com/04eZJwo.png",
   "장군 막사(虎帐)": "https://i.imgur.com/tvh1gqs.png", "말뚝(暗桩)": "https://i.imgur.com/gpcqzQy.png", "쇠사슬(铁索)": "https://i.imgur.com/RubufVY.png",
-  "선등영(先登营)": "https://i.imgur.com/LiDfbfG.png", "초소(哨岗)": "https://i.imgur.com/XkPOhd0.png", "호분영(虎탐영)": "https://i.imgur.com/um5SUWc.png"
+  "선등영(先登营)": "https://i.imgur.com/LiDfbfG.png", "초소(哨岗)": "https://i.imgur.com/XkPOhd0.png", "호분영(虎贲营)": "https://i.imgur.com/um5SUWc.png"
+};
+
+const itemOptions = {
+  "출격기(砺戈旗)": "병종 S, 주는 피해 +3% 받는 피해 +3%", "선갑기(缮甲旗)": "병종 S, 주는 피해 -3% 받는 피해 -3%", "양위기(扬威旗)": "성씨 장수 존재 시 첫 턴 감면 -15%, 매턴 5% 감소", "무위기(武威旗)": "주는 피해 +5%, 무력 +18", "모위기(谋威旗)": "주는 피해 +5%, 지력 +15", "무비기": "받는 피해 -4%, 통솔 +30", "모비기": "받는 피해 -4%, 지력 +15", "지원기(援攻旗)": "주는 피해 -5%, 동료가 주는 피해 +6%", "수호기(护守旗)": "주는 피해 -5%, 동료가 받는 피해 -5%", "정군기(整军旗)": "전투 후 자신의 부상병 65% 회복", "경계기(哨戒旗)": "통솔 +40, 회심/계책 피해 30% 감소", "경장기(轻装旗)": "통솔 +40, 지속 상태 피해 30% 감소",
+  "목책(栅栏)": "우군 중 최고 병력 장수가 피해 20% 분담", "치차(辎车)": "자신 무기 피해 1회, 우군 병력 회복", "울타리(拒马)": "피해 받을 때마다 적군 피해(턴당 2회)", "깃발 수레(旌轩)": "피해 받을 때마다 주장 속성 증가", "전고(战鼓)": "액티브 실패 시 재발동 시도", "목수(木兽)": "적 치료 금지 또는 연소 부여", "파장탑(破障塔)": "디버프 2회 부여 시 방어 획득", "인화차(引火车)": "지속 피해 +6%, 필중 획득", "대항영(御敌营)": "초과 치료량 기반 적군 피해", "연영(连营)": "치료 후 감면 및 피해 증가", "목우유마(木牛流马)": "홀수 턴 아군 2명 치료", "경차(輕車)": "누적 치료량 기반 적군 피해", "사다리차(搭天车)": "6,7턴 회심/계책 대폭 강화", "충차(冲车)": "턴당 회심/계책 확률 누적", "검문소(门岗)": "회심/계책 시 아군 치료", "벽력차(霹雳车)": "짝수 턴 적군 피해 및 피해율 증가", "의장(医帐)": "3,6턴 회복 및 35% 정화", "호교(辘桥)": "전법 발동 시 속성 중첩 증가",
+  "장군 막사(虎帐)": "모든 속성 +5", "말뚝(暗桩)": "짝수 턴 받는 피해 -5%", "쇠사슬(铁索)": "통솔 +20, 피해 40% 전이", "선등영(先登营)": "속도 +15, 주는 피해 +2%", "초소(哨岗)": "큰 피해 받을 때마다 감면 중첩", "호분영(虎贲营)": "3,6턴 단일 적군 피해"
 };
 
 const loadedImages = {};
@@ -119,12 +135,6 @@ var HEX_SIZE = 28; var HEX_W = Math.sqrt(3) * HEX_SIZE; var HEX_H = 2 * HEX_SIZE
 var colors = {"초":"#2ecc71","파":"#3498db","빨":"#e74c3c","좌":"#555","우":"#555","중":"#555"};
 var currentBoard = "안행진", currentCategory = "군기", placedItems = [], draggingItem = null, isMovingFromBoard = false;
 
-var itemOptions = {
-  "출격기(砺戈旗)": "병종 S, 주는 피해 +3% 받는 피해 +3%", "선갑기(缮甲旗)": "병종 S, 주는 피해 -3% 받는 피해 -3%", "양위기(扬威旗)": "성씨 장수 존재 시 첫 턴 감면 -15%, 매턴 5% 감소", "무위기(武威旗)": "주는 피해 +5%, 무력 +18", "모위기(谋威旗)": "주는 피해 +5%, 지력 +15", "무비기": "받는 피해 -4%, 통솔 +30", "모비기": "받는 피해 -4%, 지력 +15", "지원기(援攻旗)": "주는 피해 -5%, 동료가 주는 피해 +6%", "수호기(护守旗)": "주는 피해 -5%, 동료가 받는 피해 -5%", "정군기(整军旗)": "전투 후 자신의 부상병 65% 회복", "경계기(哨戒旗)": "통솔 +40, 회심/계책 피해 30% 감소", "경장기(轻装旗)": "통솔 +40, 지속 상태 피해 30% 감소",
-  "목책(栅栏)": "우군 중 최고 병력 장수가 피해 20% 분담", "치차(辎车)": "자신 무기 피해 1회, 우군 병력 회복", "울타리(拒马)": "피해 받을 때마다 적군 피해(턴당 2회)", "깃발 수레(旌轩)": "피해 받을 때마다 주장 속성 증가", "전고(战鼓)": "액티브 실패 시 재발동 시도", "목수(木兽)": "적 치료 금지 또는 연소 부여", "파장탑(破障塔)": "디버프 2회 부여 시 방어 획득", "인화차(引火车)": "지속 피해 +6%, 필중 획득", "대항영(御敌营)": "초과 치료량 기반 적군 피해", "연영(连营)": "치료 후 감면 및 피해 증가", "목우유마(木牛流马)": "홀수 턴 아군 2명 치료", "경차(轻车)": "(소폭 버프) 누적 치료량 기반 적군 피해", "사다리차(搭天车)": "6,7턴 회심/계책 대폭 강화", "충차(冲车)": "턴당 회심/계책 확률 누적", "검문소(门岗)": "회심/계책 시 아군 치료", "벽력차(霹雳车)": "짝수 턴 적군 피해 및 피해율 증가", "의장(医帐)": "3,6턴 회복 및 35% 정화", "호교(辘桥)": "전법 발동 시 속성 중첩 증가",
-  "장군 막사(虎帐)": "모든 속성 +5", "말뚝(暗桩)": "짝수 턴 받는 피해 -5%", "쇠사슬(铁索)": "통솔 +20, 피해 40% 전이", "선등영(先등영)": "속도 +15, 주는 피해 +2%", "초소(哨岗)": "큰 피해 받을 때마다 감면 중첩", "호분영(虎탐영)": "3,6턴 단일 적군 피해"
-};
-
 var formationEffects = { "안행진":["주는 피해 +3%","병력 회복 (15%)","받는 피해 -3%"], "현양진":["전법 확률 +2%","전법 피해 +3%","제어 대상 피해 +4%"], "추형진":["치료 효과 +3%","받는 피해 -3%","받는 치료 +4%"], "구형진":["피해량 조절 -4%","회심 피해 +4%","의병 획득"] };
 var boards = {
   "안행진":[["X","초","초","X","X","X","파","파","X"],["X","초","초","초","초","파","파","파","파","X"],["X","초","좌","초","빨","파","우","파","X"],["X","X","초","초","빨","빨","파","파","X","X"],["X","X","X","빨","중","빨","X","X","X"],["X","X","X","빨","빨","빨","빨","X","X","X"]],
@@ -137,16 +147,15 @@ var commonA = [{name:"의장(医帐)",type:"3-2",cat:"시설A"},{name:"호교(�
 var boardSpecificA = {
   "안행진":[{name:"목책(栅栏)",type:"3-3",cat:"시설A"},{name:"치차(辎车)",type:"3-2",cat:"시설A"},{name:"울타리(拒马)",type:"3-1",cat:"시설A"},{name:"깃발 수레(旌轩)",type:"3-3",cat:"시설A"}],
   "현양진":[{name:"전고(战鼓)",type:"3-2",cat:"시설A"},{name:"목수(木兽)",type:"3-1",cat:"시설A"},{name:"파장탑(破障塔)",type:"3-3",cat:"시설A"},{name:"인화차(引火车)",type:"3-1",cat:"시설A"}],
-  "추형진":[{name:"대항영(御敌营)",type:"3-3",cat:"시설A"},{name:"연영(连营)",type:"3-1",cat:"시설A"},{name:"목우유마(木牛流马)",type:"3-2",cat:"시설A"},{name:"경차(轻车)",type:"3-2",cat:"시설A"}],
+  "추형진":[{name:"대항영(御敌营)",type:"3-3",cat:"시설A"},{name:"연영(连营)",type:"3-1",cat:"시설A"},{name:"목우유마(木牛流马)",type:"3-2",cat:"시설A"},{name:"경차(輕車)",type:"3-2",cat:"시설A"}],
   "구형진":[{name:"사다리차(搭天车)",type:"3-2",cat:"시설A"},{name:"충차(冲车)",type:"3-3",cat:"시설A"},{name:"검문소(门岗)",type:"3-1",cat:"시설A"},{name:"벽력차(霹雳车)",type:"3-3",cat:"시설A"}]
 };
 var categoryItems = {
   "군기":["출격기(砺戈旗)","선갑기(缮甲旗)","양위기(扬威旗)","무위기(武威旗)","모위기(谋威旗)","무비기","모비기","지원기(援攻旗)","수호기(护守旗)","정군기(整军旗)","경계기(哨戒旗)","경장기(轻装旗)"].map(n => ({name:n,type:"1",cat:"군기"})),
   "시설A":[],
-  "시설B":[{name:"장군 막사(虎帐)",type:"2-1",cat:"시설B"},{name:"말뚝(暗桩)",type:"2-2",cat:"시설B"},{name:"쇠사슬(铁索)",type:"2-3",cat:"시설B"},{name:"선등영(先登营)",type:"2-2",cat:"시설B"},{name:"초소(哨岗)",type:"2-3",cat:"시설B"},{name:"호분영(虎탐영)",type:"2-1",cat:"시설B"}]
+  "시설B":[{name:"장군 막사(虎帐)",type:"2-1",cat:"시설B"},{name:"말뚝(暗桩)",type:"2-2",cat:"시설B"},{name:"쇠사슬(铁索)",type:"2-3",cat:"시설B"},{name:"선등영(先登营)",type:"2-2",cat:"시설B"},{name:"초소(哨岗)",type:"2-3",cat:"시설B"},{name:"호분영(虎贲营)",type:"2-1",cat:"시설B"}]
 };
 
-// --- [보조 함수] ---
 function getAdjustedPos(e, canvas) {
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches ? e.touches[0] : e;
@@ -176,29 +185,39 @@ function drawTwoLineText(ctx, text, x, y, fontSize) {
 function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
   var dx = HEX_W / 2, dy = ROW_H;
   if(isPalette) {
-      let paletteCells = [{x: x, y: y}];
-      if (type === "2-1") paletteCells.push({x: x + HEX_W, y: y});
-      if (type === "2-2") paletteCells.push({x: x + dx, y: y - dy});
-      if (type === "2-3") paletteCells.push({x: x - dx, y: y - dy});
-      if (type === "3-1") paletteCells.push({x: x - HEX_W, y: y}, {x: x + HEX_W, y: y});
-      if (type === "3-2") paletteCells.push({x: x - dx, y: y + dy}, {x: x + dx, y: y + dy});
-      if (type === "3-3") paletteCells.push({x: x - dx, y: y - dy}, {x: x + dx, y: y - dy});
-      paletteCells.forEach(p => drawHex(ctx, p.x, p.y, HEX_SIZE, fill));
-      let cX = paletteCells.reduce((a,b)=>a+b.x,0)/paletteCells.length;
-      let cY = paletteCells.reduce((a,b)=>a+b.y,0)/paletteCells.length;
+      let pCells = [{x: x, y: y}];
+      if (type === "2-1") pCells.push({x: x + HEX_W, y: y});
+      if (type === "2-2") pCells.push({x: x + dx, y: y - dy});
+      if (type === "2-3") pCells.push({x: x - dx, y: y - dy});
+      if (type === "3-1") pCells.push({x: x - HEX_W, y: y}, {x: x + HEX_W, y: y});
+      if (type === "3-2") pCells.push({x: x - dx, y: y + dy}, {x: x + dx, y: y + dy});
+      if (type === "3-3") pCells.push({x: x - dx, y: y - dy}, {x: x + dx, y: y - dy});
+
+      let minY = Math.min(...pCells.map(p => p.y)), maxY = Math.max(...pCells.map(p => p.y));
+      let currentCenterY = (minY + maxY) / 2;
+      let offsetY = y - currentCenterY; 
       
-      let nameSize = (window.innerWidth <= 768) ? 14 : 11;
+      pCells.forEach(p => drawHex(ctx, p.x, p.y + offsetY, HEX_SIZE, fill));
+      
+      let cX = x; let cY = y;
+      let nameSize = (window.innerWidth <= 768) ? 17 : 11;
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, nameSize); return; }
       
       const img = loadedImages[itemName];
       if (img) {
-          if(type === "3-2") cY -= 15; if(type === "3-3") cY += 10;
-          if(type === "2-2") cY -= 10; if(type === "2-3") cY -= 10;
-          let iw = 65 * 0.9, ih = 65 * 0.9;
-          if (type.startsWith("3")) { iw = 100 * 0.9; ih = 100 * 0.9; }
-          if (type === "3-1") { iw = 140 * 0.9; ih = 55 * 0.9; }
-          if (type.startsWith("2")) { iw = 85 * 0.9; ih = (img.height/img.width) * iw; }
-          ctx.drawImage(img, cX - iw/2, cY - ih/2, iw, ih);
+          let iw = 65 * 0.85, ih = 65 * 0.85;
+          if (type.startsWith("3")) { iw = 100 * 0.85; ih = 100 * 0.85; }
+          if (type === "3-1") { iw = 140 * 0.85; ih = 55 * 0.85; }
+          // 2-1(말) 이미지 크기 복구 (팔레트)
+          if (type === "2-1") { iw = 100 * 0.85; ih = (img.height/img.width) * iw; }
+          else if (type.startsWith("2")) { iw = 85 * 0.85; ih = (img.height/img.width) * iw; }
+          
+          let imgAdjY = 0;
+          if(type === "3-2") imgAdjY = -12; 
+          if(type === "3-3") imgAdjY = 0;
+          if(type === "2-2" || type === "2-3") imgAdjY = -8;
+          
+          ctx.drawImage(img, cX - iw/2, cY + imgAdjY - ih/2, iw, ih);
       }
       return;
   }
@@ -216,22 +235,26 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
       if (img) {
           let iw = 65 * 0.9; 
           if (type.startsWith("3")) iw = (type === "3-1") ? (175 * 0.9) : (110 * 0.9);
-          if (type.startsWith("2")) iw = 95 * 0.9;
+          // 2-1(말) 이미지 크기 복구 (보드 위)
+          if (type === "2-1") iw = 120 * 0.9;
+          else if (type.startsWith("2")) iw = 95 * 0.9;
+          
           let ih = (img.height / img.width) * iw;
           if (type === "3-1") ih = 60 * 0.9;
-          ctx.drawImage(img, cX - iw/2, cY - ih/2, iw, ih);
+          
+          let imgAdjY = 0;
+          if(type === "3-2") imgAdjY = 0; // 경차 이미지 잘림 방지를 위한 보정
+
+          ctx.drawImage(img, cX - iw/2, cY - ih/2 + imgAdjY, iw, ih);
       }
   }
 }
 
-// --- [메인 렌더링 수정: 워터마크 추가] ---
 function renderBoard() {
   if(!bctx) return;
   bctx.clearRect(0, 0, 1100, 360);
   var board = boards[currentBoard], defenseScore = 0;
   var dragCells = (draggingItem && draggingItem.snap) ? getTargetCells(draggingItem.snap.r, draggingItem.snap.c, draggingItem.type) : [];
-  
-  // 1. 타일 그리기
   for (var r = 0; r < board.length; r++) {
     var row = board[r], ox = (1100 - row.length * HEX_W) / 2;
     for (var c = 0; c < row.length; c++) {
@@ -250,45 +273,41 @@ function renderBoard() {
       }
     }
   }
-  
-  // 2. 배치된 아이템 그리기
   placedItems.forEach(it => {
     let details = getItemDetails(it.name);
     if(details) drawShape(bctx, 0, 0, details.type, "rgba(0,0,0,0)", false, it.name, it.cells);
   });
-  
-  // 3. 드래깅 아이템 그리기
   if (draggingItem && draggingItem.snap) drawShape(bctx, 0, 0, draggingItem.type, "rgba(0,0,0,0)", false, draggingItem.name, dragCells);
-  
-  // 4. 워터마크 추가 (Canvas 우측 하단)
-  bctx.fillStyle = "#e6e6fa";
-  bctx.font = "bold 16px sans-serif"; // 폰트 크기 확대
-  bctx.textAlign = "right";
-  bctx.textBaseline = "bottom";
-  bctx.globalAlpha = 0.6; // 살짝 투명하게
-  bctx.fillText("Made by. 예슈화、", 1090, 350);
-  bctx.globalAlpha = 1.0;
-
+  bctx.fillStyle = "#e6e6fa"; bctx.font = "bold 16px sans-serif"; bctx.textAlign = "right"; bctx.textBaseline = "bottom"; bctx.globalAlpha = 0.6;
+  bctx.fillText("Made by. 예슈화、", 1090, 350); bctx.globalAlpha = 1.0;
   document.getElementById("defense-score").innerText = "방어치 : " + defenseScore;
 }
 
 function renderPalette() {
   if(!pctx) return;
-  pctx.clearRect(0, 0, 1100, 260);
+  pctx.clearRect(0, 0, 1100, 220); 
   var items = currentCategory === "시설A" ? commonA.concat(boardSpecificA[currentBoard]) : categoryItems[currentCategory];
-  var baseHeight = (currentCategory === "군기") ? 75 : 100;
+  
+  var baseHeight, rowSpacing, textOffset;
+  if(currentCategory === "군기") {
+      baseHeight = 55; rowSpacing = 95; textOffset = 52;
+  } else {
+      baseHeight = 85; rowSpacing = 110; textOffset = 60;
+  }
   
   const itemsPerRow = 6;
   const spacing = 1100 / (itemsPerRow + 1);
 
   items.forEach((it, i) => {
     var x = spacing + (i % itemsPerRow) * spacing;
-    var y = baseHeight + Math.floor(i / itemsPerRow) * 110;
+    var y = baseHeight + Math.floor(i / itemsPerRow) * rowSpacing;
+    
     drawShape(pctx, x, y, it.type, "#333", true, it.name);
     
-    let fontSize = (window.innerWidth <= 768) ? 15 : 13;
+    let fontSize = (window.innerWidth <= 768) ? 17 : 13;
     pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
-    pctx.fillText(it.name, x, y + 60); 
+    pctx.fillText(it.name, x, y + textOffset); 
+    
     it.px = x; it.py = y;
   });
 }
@@ -296,7 +315,8 @@ function renderPalette() {
 function renderEffects() {
   var base = formationEffects[currentBoard], extras = { "좌": [], "중": [], "우": [] };
   placedItems.forEach(item => {
-    var opt = itemOptions[item.name] || "", area = {};
+    var opt = itemOptions[item.name] || "";
+    var area = {};
     item.cells.forEach(c => {
       var color = boards[currentBoard][c.r][c.c];
       if (color === "초") area["좌"] = true; if (color === "빨") area["중"] = true; if (color === "파") area["우"] = true;
@@ -313,6 +333,11 @@ function renderEffects() {
   document.getElementById("effect-left").innerHTML = fH(base[0], extras["좌"], "#2ecc71");
   document.getElementById("effect-center").innerHTML = fH(base[1], extras["중"], "#e74c3c");
   document.getElementById("effect-right").innerHTML = fH(base[2], extras["우"], "#3498db");
+}
+
+function toggleEffect(id) {
+  if (window.innerWidth > 768) return;
+  document.getElementById(id).classList.toggle('collapsed');
 }
 
 function undoLast() { if(placedItems.length > 0) { placedItems.pop(); renderBoard(); renderEffects(); } }
@@ -344,7 +369,6 @@ function getItemDetails(name) {
     return categoryItems["군기"].concat(categoryItems["시설B"], commonA, boardSpecificA[currentBoard]).find(i => i.name === name);
 }
 
-// --- [이벤트 리스너 및 실행] ---
 window.onload = function() {
   boardCanvas = document.getElementById("board"); bctx = boardCanvas.getContext("2d");
   paletteCanvas = document.getElementById("palette"); pctx = paletteCanvas.getContext("2d");
@@ -368,7 +392,7 @@ window.onload = function() {
             placedItems.splice(i, 1); renderBoard(); renderEffects(); return;
           }
         }
-      }
+       snap = null; }
     }
   };
 
@@ -385,10 +409,7 @@ window.onload = function() {
     if (draggingItem.snap) {
       var snap = draggingItem.snap;
       var isDup = placedItems.some(i => i.name === draggingItem.name);
-      var gunkiC = placedItems.filter(i => i.cat === "군기").length, siselAC = placedItems.filter(i => i.cat === "시설A").length;
-      if(isDup) alert("이미 같은 시설이 배치되어 있습니다.");
-      else if(draggingItem.cat === "군기" && gunkiC >= 1) alert("군기는 진당 1개만 가능합니다.");
-      else if(draggingItem.cat === "시설A" && siselAC >= 2) alert("시설 A는 진당 2개만 가능합니다.");
+      if(isDup) alert("이미 배치되었습니다.");
       else {
           var cells = getTargetCells(snap.r, snap.c, draggingItem.type), canP = true, board = boards[currentBoard];
           for(var i=0; i<cells.length; i++) {
@@ -397,18 +418,17 @@ window.onload = function() {
             for(var j=0; j<placedItems.length; j++) if(placedItems[j].cells.some(c => c.r === p.r && c.c === p.c)) canP = false;
           }
           if (canP) placedItems.push({ name: draggingItem.name, cells: cells, cat: draggingItem.cat });
-          else if(isMovingFromBoard) alert("배치 불가 위치입니다.");
       }
     }
     draggingItem = null; isMovingFromBoard = false; renderBoard(); renderEffects();
   };
 
-  const opt = { passive: false };
   boardCanvas.addEventListener('mousedown', (e) => startDrag(e, false));
   paletteCanvas.addEventListener('mousedown', (e) => startDrag(e, true));
   window.addEventListener('mousemove', moveDrag);
   window.addEventListener('mouseup', endDrag);
 
+  const opt = { passive: false };
   boardCanvas.addEventListener('touchstart', (e) => { startDrag(e, false); if(draggingItem) e.preventDefault(); }, opt);
   paletteCanvas.addEventListener('touchstart', (e) => { startDrag(e, true); if(draggingItem) e.preventDefault(); }, opt);
   window.addEventListener('touchmove', (e) => { if(draggingItem) { e.preventDefault(); moveDrag(e); } }, opt);
@@ -419,8 +439,7 @@ window.onload = function() {
 
 function setBoard(n) { currentBoard = n; placedItems = []; renderBoard(); renderPalette(); renderEffects(); }
 function selectCategory(c) { currentCategory = c; renderPalette(); }
-function clearBoard() { if(confirm("초기화하시겠습니까?")) { placedItems = []; renderBoard(); renderEffects(); } }
+function clearBoard() { if(confirm("초기화?")) { placedItems = []; renderBoard(); renderEffects(); } }
 </script>
-
 </body>
 </html>
