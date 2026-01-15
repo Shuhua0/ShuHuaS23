@@ -8,16 +8,32 @@
   .top-buttons { margin:15px; }
   button { margin:0 5px; padding:12px 20px; cursor:pointer; background:#333; color:#fff; border:1px solid #555; border-radius:5px; font-weight:bold; font-size:14px; }
   button:hover { background: #444; }
-  canvas { background:#111; display:block; margin:0 auto; border:1px solid #333; cursor: crosshair; }
+  
+  /* 캔버스 스타일: 선택 방지 기능 추가 */
+  canvas { 
+    background:#111; 
+    display:block; 
+    margin:0 auto; 
+    border:1px solid #333; 
+    cursor: crosshair; 
+    /* 드래그 시 파란 블록 방지 */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   .effects { width:1100px; display:flex; justify-content:space-between; margin:15px 0; border-top:1px solid #444; padding-top:20px; }
   .effect { width:32%; text-align:left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333; }
   .effect .title { font-size:16px; color:#fff; margin-bottom:12px; font-weight:bold; text-align:center; border-bottom: 2px solid #555; padding-bottom: 8px; }
+  
+  /* 설명 텍스트 스타일 (원본 보존) */
   .formation-base { font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center; }
   .opt-item { margin-top:10px; line-height:1.5; border-left: 3px solid #666; padding-left: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 0 5px 5px 0; }
   .opt-name { font-weight: bold; font-size: 14px; color: #fff; display: block; margin-bottom: 3px; }
   .opt-desc { font-size: 13px; color: #ddd; display: block; }
+  
   .bottom-buttons { margin:10px 0 20px 0; display: flex; align-items: center; }
   .status-badge { margin-left: 20px; padding: 12px 20px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 16px; transition: 0.3s; }
+  
   #palette { background:#181818; border-top:1px solid #333; }
 </style>
 </head>
@@ -51,6 +67,14 @@
 <canvas id="palette" width="1100" height="260"></canvas>
 
 <script src="script.js"></script>
+
+<script>
+  const canvases = [document.getElementById('board'), document.getElementById('palette')];
+  canvases.forEach(canvas => {
+    canvas.onselectstart = function() { return false; };
+    canvas.ondragstart = function() { return false; };
+  });
+</script>
 
 </body>
 </html>
