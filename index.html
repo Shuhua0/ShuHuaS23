@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>정군산 전투 군기 시뮬레이터</title>
+<style>
+  body { margin:0; background:#111; color:#fff; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; }
+  .top-buttons { margin:15px; }
+  button { margin:0 5px; padding:12px 20px; cursor:pointer; background:#333; color:#fff; border:1px solid #555; border-radius:5px; font-weight:bold; font-size:14px; }
+  button:hover { background: #444; }
+  canvas { background:#111; display:block; margin:0 auto; border:1px solid #333; cursor: crosshair; }
+  .effects { width:1100px; display:flex; justify-content:space-between; margin:15px 0; border-top:1px solid #444; padding-top:20px; }
+  .effect { width:32%; text-align:left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333; }
+  .effect .title { font-size:16px; color:#fff; margin-bottom:12px; font-weight:bold; text-align:center; border-bottom: 2px solid #555; padding-bottom: 8px; }
+  .formation-base { font-size: 15px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+  .opt-item { margin-top:10px; line-height:1.5; border-left: 3px solid #666; padding-left: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 0 5px 5px 0; }
+  .opt-name { font-weight: bold; font-size: 14px; color: #fff; display: block; margin-bottom: 3px; }
+  .opt-desc { font-size: 13px; color: #ddd; display: block; }
+  .bottom-buttons { margin:10px 0 20px 0; display: flex; align-items: center; }
+  .status-badge { margin-left: 20px; padding: 12px 20px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 16px; transition: 0.3s; }
+  #palette { background:#181818; border-top:1px solid #333; }
+</style>
+</head>
+<body>
+
+<div class="top-buttons">
+  <button onclick="setBoard('안행진')">안행진</button>
+  <button onclick="setBoard('현양진')">현양진</button>
+  <button onclick="setBoard('추형진')">추형진</button>
+  <button onclick="setBoard('구형진')">구형진</button>
+</div>
+
+<canvas id="board" width="1100" height="360"></canvas>
+
+<div class="effects">
+  <div class="effect"><div class="title" style="color:#2ecc71;">좌측 (초록)</div><div id="effect-left"></div></div>
+  <div class="effect"><div class="title" style="color:#e74c3c;">중심 (빨강)</div><div id="effect-center"></div></div>
+  <div class="effect"><div class="title" style="color:#3498db;">우측 (파랑)</div><div id="effect-right"></div></div>
+</div>
+
+<div class="bottom-buttons">
+  <button onclick="selectCategory('군기')">군기</button>
+  <button onclick="selectCategory('시설A')">대형 군사 시설A</button>
+  <button onclick="selectCategory('시설B')">대형 군사 시설B</button>
+  <span style="margin: 0 20px; color: #444; font-size: 20px;">|</span>
+  <button onclick="undoLast()" style="background:#555;">뒤로 가기</button>
+  <button onclick="clearBoard()" style="background:#c0392b; border:none;">초기화</button>
+  <div class="status-badge" id="defense-score">방어치 : 0</div>
+</div>
+
+<canvas id="palette" width="1100" height="260"></canvas>
+
+<script src="script.js"></script>
+
+</body>
+</html>
