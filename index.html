@@ -108,20 +108,20 @@
 
 <script>
 const itemImages = {
-  "목책(栅栏)": "https://i.imgur.com/nVMAJ2m.png", "치차(辎车)": "https://i.imgur.com/afcSPeq.png", "울타리(拒马)": "https://i.imgur.com/YcOXVbc.png",
-  "깃발 수레(旌轩)": "https://i.imgur.com/JyTTiw9.png", "의장(医帐)": "https://i.imgur.com/4lBRS9S.png", "호교(辘桥)": "https://i.imgur.com/hFnnrv4.png",
-  "전고(战鼓)": "https://i.imgur.com/Kze6RsC.png", "목수(木兽)": "https://i.imgur.com/FceMagP.png", "파장탑(破障塔)": "https://i.imgur.com/B2SIC96.png",
-  "인화차(引火车)": "https://i.imgur.com/U9Oezgp.png", "목우유마(木牛流马)": "https://i.imgur.com/VGm5noB.png", "경차(輕車)": "https://i.imgur.com/y5ampJD.png",
-  "대항영(御敌营)": "https://i.imgur.com/elTTSPe.png", "연영(连营)": "https://i.imgur.com/eawBuwS.png", "사다리차(搭天车)": "https://i.imgur.com/IMHQI2u.png",
-  "충차(冲车)": "https://i.imgur.com/HE7GYNM.png", "검문소(门岗)": "https://i.imgur.com/NVJvfMC.png", "벽력차(霹雳车)": "https://i.imgur.com/04eZJwo.png",
-  "장군 막사(虎帐)": "https://i.imgur.com/tvh1gqs.png", "말뚝(暗桩)": "https://i.imgur.com/gpcqzQy.png", "쇠사슬(铁索)": "https://i.imgur.com/RubufVY.png",
-  "선등영(先登营)": "https://i.imgur.com/LiDfbfG.png", "초소(哨岗)": "https://i.imgur.com/XkPOhd0.png", "호분영(虎贲营)": "https://i.imgur.com/um5SUWc.png"
+  "목책": "https://i.imgur.com/nVMAJ2m.png", "치차": "https://i.imgur.com/afcSPeq.png", "울타리": "https://i.imgur.com/YcOXVbc.png",
+  "깃발 수레": "https://i.imgur.com/JyTTiw9.png", "의장": "https://i.imgur.com/4lBRS9S.png", "호교": "https://i.imgur.com/hFnnrv4.png",
+  "전고": "https://i.imgur.com/Kze6RsC.png", "목수": "https://i.imgur.com/FceMagP.png", "파장탑": "https://i.imgur.com/B2SIC96.png",
+  "인화차": "https://i.imgur.com/U9Oezgp.png", "목우유마": "https://i.imgur.com/VGm5noB.png", "경차": "https://i.imgur.com/y5ampJD.png",
+  "대항영": "https://i.imgur.com/elTTSPe.png", "연영": "https://i.imgur.com/eawBuwS.png", "사다리차": "https://i.imgur.com/IMHQI2u.png",
+  "충차": "https://i.imgur.com/HE7GYNM.png", "검문소": "https://i.imgur.com/NVJvfMC.png", "벽력차": "https://i.imgur.com/04eZJwo.png",
+  "장군 막사": "https://i.imgur.com/tvh1gqs.png", "말뚝": "https://i.imgur.com/gpcqzQy.png", "쇠사슬": "https://i.imgur.com/RubufVY.png",
+  "선등영": "https://i.imgur.com/LiDfbfG.png", "초소": "https://i.imgur.com/XkPOhd0.png", "호분영": "https://i.imgur.com/um5SUWc.png"
 };
 
 const itemOptions = {
-  "출격기(砺戈旗)": "병종 S, 주는 피해 +3% 받는 피해 +3%", "선갑기(缮甲旗)": "병종 S, 주는 피해 -3% 받는 피해 -3%", "양위기(扬威旗)": "성씨 장수 존재 시 첫 턴 감면 -15%, 매턴 5% 감소", "무위기(武威旗)": "주는 피해 +5%, 무력 +18", "모위기(谋威旗)": "주는 피해 +5%, 지력 +15", "무비기": "받는 피해 -4%, 통솔 +30", "모비기": "받는 피해 -4%, 지력 +15", "지원기(援攻旗)": "주는 피해 -5%, 동료가 주는 피해 +6%", "수호기(护守旗)": "주는 피해 -5%, 동료가 받는 피해 -5%", "정군기(整军旗)": "전투 후 자신의 부상병 65% 회복", "경계기(哨戒旗)": "통솔 +40, 회심/계책 피해 30% 감소", "경장기(轻装旗)": "통솔 +40, 지속 상태 피해 30% 감소",
-  "목책(栅栏)": "우군 중 최고 병력 장수가 피해 20% 분담", "치차(辎车)": "자신 무기 피해 1회, 우군 병력 회복", "울타리(拒马)": "피해 받을 때마다 적군 피해(턴당 2회)", "깃발 수레(旌轩)": "피해 받을 때마다 주장 속성 증가", "전고(战鼓)": "액티브 실패 시 재발동 시도", "목수(木兽)": "적 치료 금지 또는 연소 부여", "파장탑(破障塔)": "디버프 2회 부여 시 방어 획득", "인화차(引火车)": "지속 피해 +6%, 필중 획득", "대항영(御敌营)": "초과 치료량 기반 적군 피해", "연영(连营)": "치료 후 감면 및 피해 증가", "목우유마(木牛流马)": "홀수 턴 아군 2명 치료", "경차(輕車)": "누적 치료량 기반 적군 피해", "사다리차(搭天车)": "6,7턴 회심/계책 대폭 강화", "충차(冲车)": "턴당 회심/계책 확률 누적", "검문소(门岗)": "회심/계책 시 아군 치료", "벽력차(霹雳车)": "짝수 턴 적군 피해 및 피해율 증가", "의장(医帐)": "3,6턴 회복 및 35% 정화", "호교(辘桥)": "전법 발동 시 속성 중첩 증가",
-  "장군 막사(虎帐)": "모든 속성 +5", "말뚝(暗桩)": "짝수 턴 받는 피해 -5%", "쇠사슬(铁索)": "통솔 +20, 피해 40% 전이", "선등영(先登营)": "속도 +15, 주는 피해 +2%", "초소(哨岗)": "큰 피해 받을 때마다 감면 중첩", "호분영(虎贲营)": "3,6턴 단일 적군 피해"
+  "출격기": "병종 S, 주는 피해 +3% 받는 피해 +3%", "선갑기": "병종 S, 주는 피해 -3% 받는 피해 -3%", "양위기": "성씨 장수 존재 시 첫 턴 감면 -15%, 매턴 5% 감소", "무위기": "주는 피해 +5%, 무력 +18", "모위기": "주는 피해 +5%, 지력 +15", "무비기": "받는 피해 -4%, 통솔 +30", "모비기": "받는 피해 -4%, 지력 +15", "지원기": "주는 피해 -5%, 동료가 주는 피해 +6%", "수호기": "주는 피해 -5%, 동료가 받는 피해 -5%", "정군기": "전투 후 자신의 부상병 65% 회복", "경계기": "통솔 +40, 회심/계책 피해 30% 감소", "경장기": "통솔 +40, 지속 상태 피해 30% 감소",
+  "목책": "우군 중 최고 병력 장수가 피해 20% 분담", "치차": "자신에게 1회 무기 피해 , 우군 병력 회복", "울타리": "피해 받을 때마다 적군 피해(턴당 2회)", "깃발 수레": "피해 받을 때마다 주장 속성 증가", "전고": "액티브 실패 시 재발동 시도", "목수": "적 치료 금지 또는 연소 부여", "파장탑": "디버프 2회 부여 시 방어 획득", "인화차": "지속 피해 +6%, 필중 획득", "대항영": "초과 치료량 기반 적군 피해", "연영": "치료 후 감면 및 피해 증가", "목우유마": "홀수 턴 아군 2명 치료", "경차": "누적 치료량 기반 적군 피해", "사다리차": "6,7턴 회심/계책 대폭 강화", "충차": "턴당 회심/계책 확률 누적", "검문소": "회심/계책 시 아군 치료", "벽력차": "짝수 턴 적군 피해 및 피해율 증가", "의장": "3,6턴 회복 및 35% 정화", "호교": "전법 발동 시 속성 중첩 증가",
+  "장군 막사": "모든 속성 +5", "말뚝": "짝수 턴 받는 피해 -5%", "쇠사슬": "통솔 +20, 피해 40% 전이", "선등영": "속도 +15, 주는 피해 +2%", "초소": "600이상의 피해 받을 때마다 감면 중첩", "호분영": "3,6턴 단일 적군 피해"
 };
 
 const loadedImages = {};
@@ -143,17 +143,17 @@ var boards = {
   "구형진":[["X","X","초","초","X","파","파","X","X"],["X","X","초","초","초","파","우","파","X","X"],["X","초","좌","초","파","파","파","파","X"],["X","X","초","초","빨","파","빨","X","X","X"],["X","X","X","빨","중","빨","빨","X","X"],["X","X","X","빨","빨","빨","X","X","X","X"]]
 };
 
-var commonA = [{name:"의장(医帐)",type:"3-2",cat:"시설A"},{name:"호교(辘桥)",type:"3-1",cat:"시설A"}];
+var commonA = [{name:"의장",type:"3-2",cat:"시설A"},{name:"호교",type:"3-1",cat:"시설A"}];
 var boardSpecificA = {
-  "안행진":[{name:"목책(栅栏)",type:"3-3",cat:"시설A"},{name:"치차(辎车)",type:"3-2",cat:"시설A"},{name:"울타리(拒马)",type:"3-1",cat:"시설A"},{name:"깃발 수레(旌轩)",type:"3-3",cat:"시설A"}],
-  "현양진":[{name:"전고(战鼓)",type:"3-2",cat:"시설A"},{name:"목수(목수)",type:"3-1",cat:"시설A"},{name:"파장탑(破障塔)",type:"3-3",cat:"시설A"},{name:"인화차(引火车)",type:"3-1",cat:"시설A"}],
-  "추형진":[{name:"대항영(御敌营)",type:"3-3",cat:"시설A"},{name:"연영(连营)",type:"3-1",cat:"시설A"},{name:"목우유마(木牛流马)",type:"3-2",cat:"시설A"},{name:"경차(輕車)",type:"3-2",cat:"시설A"}],
-  "구형진":[{name:"사다리차(搭天车)",type:"3-2",cat:"시설A"},{name:"충차(冲车)",type:"3-3",cat:"시설A"},{name:"검문소(门岗)",type:"3-1",cat:"시설A"},{name:"벽력차(霹雳车)",type:"3-3",cat:"시설A"}]
+  "안행진":[{name:"목책",type:"3-3",cat:"시설A"},{name:"치차",type:"3-2",cat:"시설A"},{name:"울타리",type:"3-1",cat:"시설A"},{name:"깃발 수레",type:"3-3",cat:"시설A"}],
+  "현양진":[{name:"전고",type:"3-2",cat:"시설A"},{name:"목수",type:"3-1",cat:"시설A"},{name:"파장탑",type:"3-3",cat:"시설A"},{name:"인화차",type:"3-1",cat:"시설A"}],
+  "추형진":[{name:"대항영",type:"3-3",cat:"시설A"},{name:"연영",type:"3-1",cat:"시설A"},{name:"목우유마",type:"3-2",cat:"시설A"},{name:"경차",type:"3-2",cat:"시설A"}],
+  "구형진":[{name:"사다리차",type:"3-2",cat:"시설A"},{name:"충차",type:"3-3",cat:"시설A"},{name:"검문소",type:"3-1",cat:"시설A"},{name:"벽력차",type:"3-3",cat:"시설A"}]
 };
 var categoryItems = {
-  "군기":["출격기(砺戈旗)","선갑기(缮甲旗)","양위기(扬威旗)","무위기(武威旗)","모위기(谋威旗)","무비기","모비기","지원기(援攻旗)","수호기(护守旗)","정군기(整军旗)","경계기(哨戒旗)","경장기(轻装旗)"].map(n => ({name:n,type:"1",cat:"군기"})),
+  "군기":["출격기","선갑기","양위기","무위기","모위기","무비기","모비기","지원기","수호기","정군기","경계기","경장기"].map(n => ({name:n,type:"1",cat:"군기"})),
   "시설A":[],
-  "시설B":[{name:"장군 막사(虎帐)",type:"2-1",cat:"시설B"},{name:"말뚝(暗桩)",type:"2-2",cat:"시설B"},{name:"쇠사슬(铁索)",type:"2-3",cat:"시설B"},{name:"선등영(先登营)",type:"2-2",cat:"시설B"},{name:"초소(哨岗)",type:"2-3",cat:"시설B"},{name:"호분영(虎贲营)",type:"2-1",cat:"시설B"}]
+  "시설B":[{name:"장군 막사",type:"2-1",cat:"시설B"},{name:"말뚝",type:"2-2",cat:"시설B"},{name:"쇠사슬",type:"2-3",cat:"시설B"},{name:"선등영",type:"2-2",cat:"시설B"},{name:"초소",type:"2-3",cat:"시설B"},{name:"호분영",type:"2-1",cat:"시설B"}]
 };
 
 function getAdjustedPos(e, canvas) {
@@ -280,7 +280,7 @@ function renderBoard() {
     if(details) drawShape(bctx, 0, 0, details.type, "rgba(0,0,0,0)", false, it.name, it.cells);
   });
   if (draggingItem && draggingItem.snap) drawShape(bctx, 0, 0, draggingItem.type, "rgba(0,0,0,0)", false, draggingItem.name, dragCells);
-  bctx.fillStyle = "#e6e6fa"; bctx.font = "bold 16px sans-serif"; bctx.textAlign = "right"; bctx.textBaseline = "bottom"; bctx.globalAlpha = 0.6;
+  bctx.fillStyle = "#e6e6fa"; bctx.font = "bold 25px sans-serif"; bctx.textAlign = "right"; bctx.textBaseline = "bottom"; bctx.globalAlpha = 0.6;
   bctx.fillText("Made by. 예슈화、", 1090, 350); bctx.globalAlpha = 1.0;
   document.getElementById("defense-score").innerText = "방어치 : " + defenseScore;
 }
@@ -306,9 +306,12 @@ function renderPalette() {
     
     drawShape(pctx, x, y, it.type, "#333", true, it.name);
     
-    let fontSize = (window.innerWidth <= 768) ? 17 : 13;
-    pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
-    pctx.fillText(it.name, x, y + textOffset); 
+    // 군기 카테고리가 아닐 때만 하단 텍스트 출력 (군기는 헥사곤 안에 이미 이름이 있음)
+    if (currentCategory !== "군기") {
+      let fontSize = (window.innerWidth <= 768) ? 17 : 13;
+      pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
+      pctx.fillText(it.name, x, y + textOffset); 
+    }
     
     it.px = x; it.py = y;
   });
