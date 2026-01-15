@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>정군산 전투 군기 시뮬레이터</title>
 <style>
-  /* 배경 및 전체 레이아웃 */
+  /* 레이아웃 스타일 */
   body { 
     margin:0; background:#111; color:#fff; font-family:sans-serif; 
     display:flex; flex-direction:column; align-items:center;
@@ -13,8 +13,6 @@
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
     padding-bottom: 120px; 
   }
-  
-  /* 버튼 및 요소 스타일 */
   .top-buttons { margin:15px; display: flex; justify-content: center; width: 100%; flex-wrap: nowrap; }
   button { 
     margin:0 3px; padding:10px 15px; cursor:pointer; background:#333; color:#fff; 
@@ -22,13 +20,11 @@
     white-space: nowrap; -webkit-tap-highlight-color: transparent;
   }
   button:hover { background: #444; }
-
   canvas { 
     background:#111; display:block; margin:0 auto; border:1px solid #333; cursor: crosshair; 
     max-width: 98%; height: auto; touch-action: none;
     -webkit-touch-callout: none;
   }
-
   .effects { 
     width: 98%; max-width: 1100px; display:flex; flex-direction: row; 
     justify-content: space-between; margin:15px 0; border-top:1px solid #444; padding-top:20px; 
@@ -39,12 +35,10 @@
     padding: 10px; border-radius: 10px; box-sizing: border-box; border: 1px solid #333;
     transition: all 0.3s ease; overflow: hidden;
   }
-  
   .effect .title { 
     font-size:14px; color:#fff; margin-bottom:10px; font-weight:bold; text-align:center; 
     border-bottom: 2px solid #555; padding-bottom: 5px; cursor: pointer;
   }
-
   @media (max-width: 768px) {
     .effect.collapsed { min-height: 45px !important; height: 45px !important; }
     .effect.collapsed .effect-content { display: none; }
@@ -53,12 +47,10 @@
     .opt-name { font-size: 13px !important; }
     .opt-desc { font-size: 12px !important; }
   }
-
   .formation-base { font-size: 13px; font-weight: bold; margin-bottom: 8px; text-align: center; }
   .opt-item { margin-top:8px; line-height:1.4; border-left: 3px solid #666; padding-left: 8px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 0 5px 5px 0; }
   .opt-name { font-weight: bold; font-size: 14px; color: #fff; display: block; }
   .opt-desc { font-size: 12px; color: #ddd; display: block; }
-
   .bottom-buttons { 
     width: 98%; max-width: 1100px; margin:10px 0 20px 0; 
     display: flex; flex-direction: row; justify-content: center; align-items: center; 
@@ -66,11 +58,10 @@
   }
   .bottom-buttons button { padding: 8px 10px; font-size: 12px; flex-shrink: 0; }
   .status-badge { padding: 8px 12px; background: #222; border: 2px solid #fff; border-radius: 8px; color: #fff; font-weight: bold; font-size: 13px; }
-  
   #palette { background:#181818; border-top:1px solid #333; margin-top: 10px; }
 </style>
 </head>
-<body oncontextmenu="return false">
+<body>
 
 <div class="top-buttons">
   <button onclick="setBoard('안행진')">안행진</button>
@@ -101,8 +92,8 @@
   <button onclick="selectCategory('시설A')">시설A</button>
   <button onclick="selectCategory('시설B')">시설B</button>
   <span style="color: #444; font-size: 18px;">|</span>
-  <button onclick="undoLast()" style="background:#555;">뒤로</button>
-  <button onclick="clearBoard()" style="background:#c0392b; border:none;">초기화</button>
+  <button onclick="undoLast()">뒤로</button>
+  <button onclick="clearBoard()" style="background:#c0392b;">초기화</button>
   <div class="status-badge" id="defense-score">방어치 : 0</div>
 </div>
 
