@@ -54,8 +54,8 @@
 
   .formation-base { font-size: 13px; font-weight: bold; margin-bottom: 8px; text-align: center; }
   .opt-item { margin-top:8px; line-height:1.4; border-left: 3px solid #666; padding-left: 8px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 0 5px 5px 0; }
-  .opt-name { font-weight: bold; font-size: 12px; color: #fff; display: block; }
-  .opt-desc { font-size: 11px; color: #ddd; display: block; }
+  .opt-name { font-weight: bold; font-size: 14px; color: #fff; display: block; }
+  .opt-desc { font-size: 12px; color: #ddd; display: block; }
 
   .bottom-buttons { 
     width: 98%; max-width: 1100px; margin:10px 0 20px 0; 
@@ -175,37 +175,34 @@ function drawHex(ctx, x, y, size, fill) {
 }
 
 function drawTwoLineText(ctx, text, x, y, fontSize) {
+  // '기'로 끝나는 3글자 단어에서 '기' 제거
+  let displayText = (text.length === 3 && text.endsWith('기')) ? text.substring(0, 2) : text;
+  
   ctx.fillStyle = "#fff"; ctx.font = `bold ${fontSize}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  if (text.includes('(')) {
-    let parts = text.split('(');
+  if (displayText.includes('(')) {
+    let parts = displayText.split('(');
     ctx.fillText(parts[0], x, y - (fontSize * 0.6)); ctx.fillText('(' + parts[1], x, y + (fontSize * 0.6));
-  } else { ctx.fillText(text, x, y); }
+  } else { ctx.fillText(displayText, x, y); }
 }
 
 function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
   var dx = HEX_W / 2, dy = ROW_H;
-  
   if(isPalette) {
       let offsetX_21 = (type === "2-1") ? -dx : 0;
       let pCells = [{x: x + offsetX_21, y: y}];
-      
       if (type === "2-1") pCells.push({x: x + HEX_W + offsetX_21, y: y});
       if (type === "2-2") pCells.push({x: x + dx, y: y - dy});
       if (type === "2-3") pCells.push({x: x - dx, y: y - dy});
       if (type === "3-1") pCells.push({x: x - HEX_W, y: y}, {x: x + HEX_W, y: y});
       if (type === "3-2") pCells.push({x: x - dx, y: y + dy}, {x: x + dx, y: y + dy});
       if (type === "3-3") pCells.push({x: x - dx, y: y - dy}, {x: x + dx, y: y - dy});
-
       let minY = Math.min(...pCells.map(p => p.y)), maxY = Math.max(...pCells.map(p => p.y));
       let currentCenterY = (minY + maxY) / 2;
       let offsetY = y - currentCenterY; 
-      
       pCells.forEach(p => drawHex(ctx, p.x, p.y + offsetY, HEX_SIZE, fill));
-      
-      let cX = x; let cY = y;
-      let nameSize = (window.innerWidth <= 768) ? 17 : 11;
+      let cX = x, cY = y;
+      let nameSize = (window.innerWidth <= 768) ? 17 : 15; // 군기 이름 크기 상향
       if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, nameSize); return; }
-      
       const img = loadedImages[itemName];
       if (img) {
           let iw = 65 * 0.9, ih = 65 * 0.9;
@@ -213,17 +210,14 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
           if (type === "3-1") { iw = 175 * 0.9; ih = 60 * 0.9; }
           if (type === "2-1") { iw = 120 * 0.9; ih = (img.height/img.width) * iw; }
           else if (type.startsWith("2")) { iw = 95 * 0.9; ih = (img.height/img.width) * iw; }
-          
-          let imgAdjY = 0; let imgAdjX = 0;
+          let imgAdjY = 0, imgAdjX = 0;
           if(type === "3-2") imgAdjY = -12; 
           if(type === "2-2") { imgAdjY = -8; imgAdjX = dx/2; }
           if(type === "2-3") { imgAdjY = -8; imgAdjX = -dx/2; }
-          
           ctx.drawImage(img, cX - iw/2 + imgAdjX, cY + imgAdjY - ih/2, iw, ih);
       }
       return;
   }
-  
   if (cells && cells.length > 0) {
       let sX = 0, sY = 0;
       cells.forEach(c => {
@@ -233,20 +227,17 @@ function drawShape(ctx, x, y, type, fill, isPalette, itemName, cells) {
           sX += px; sY += py; drawHex(ctx, px, py, HEX_SIZE, fill);
       });
       let cX = sX / cells.length, cY = sY / cells.length;
-      if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, 9); return; }
+      if (type === "1") { drawTwoLineText(ctx, itemName, cX, cY, 15); return; } // 보드 위 군기 이름 크기 상향
       const img = loadedImages[itemName];
       if (img) {
           let iw = 65 * 0.9; 
           if (type.startsWith("3")) iw = (type === "3-1") ? (175 * 0.9) : (110 * 0.9);
           if (type === "2-1") iw = 120 * 0.9;
           else if (type.startsWith("2")) iw = 95 * 0.9;
-          
           let ih = (img.height / img.width) * iw;
           if (type === "3-1") ih = 60 * 0.9;
-          
           let imgAdjY = 0;
           if(type === "3-2") imgAdjY = 0; 
-
           ctx.drawImage(img, cX - iw/2, cY - ih/2 + imgAdjY, iw, ih);
       }
   }
@@ -289,30 +280,21 @@ function renderPalette() {
   if(!pctx) return;
   pctx.clearRect(0, 0, 1100, 220); 
   var items = currentCategory === "시설A" ? commonA.concat(boardSpecificA[currentBoard]) : categoryItems[currentCategory];
-  
   var baseHeight, rowSpacing, textOffset;
   if(currentCategory === "군기") {
       baseHeight = 40; rowSpacing = 95; textOffset = 52;
   } else {
-      baseHeight = 85; rowSpacing = 110; textOffset = 60;
+      baseHeight = 85; rowSpacing = 110; textOffset = 65; // 시설 텍스트 위치 소폭 조정
   }
-  
-  const itemsPerRow = 6;
-  const spacing = 1100 / (itemsPerRow + 1);
-
+  const itemsPerRow = 6, spacing = 1100 / (itemsPerRow + 1);
   items.forEach((it, i) => {
-    var x = spacing + (i % itemsPerRow) * spacing;
-    var y = baseHeight + Math.floor(i / itemsPerRow) * rowSpacing;
-    
+    var x = spacing + (i % itemsPerRow) * spacing, y = baseHeight + Math.floor(i / itemsPerRow) * rowSpacing;
     drawShape(pctx, x, y, it.type, "#333", true, it.name);
-    
-    // 군기 카테고리가 아닐 때만 하단 텍스트 출력 (군기는 헥사곤 안에 이미 이름이 있음)
     if (currentCategory !== "군기") {
-      let fontSize = (window.innerWidth <= 768) ? 17 : 13;
+      let fontSize = (window.innerWidth <= 768) ? 18 : 16; // 시설 이름 폰트 상향
       pctx.fillStyle = "#fff"; pctx.font = `bold ${fontSize}px sans-serif`; pctx.textAlign = "center";
       pctx.fillText(it.name, x, y + textOffset); 
     }
-    
     it.px = x; it.py = y;
   });
 }
@@ -340,13 +322,8 @@ function renderEffects() {
   document.getElementById("effect-right").innerHTML = fH(base[2], extras["우"], "#3498db");
 }
 
-function toggleEffect(id) {
-  if (window.innerWidth > 768) return;
-  document.getElementById(id).classList.toggle('collapsed');
-}
-
+function toggleEffect(id) { if (window.innerWidth <= 768) document.getElementById(id).classList.toggle('collapsed'); }
 function undoLast() { if(placedItems.length > 0) { placedItems.pop(); renderBoard(); renderEffects(); } }
-
 function getCellFromPos(mx, my) {
   var board = boards[currentBoard];
   for (var r = 0; r < board.length; r++) {
@@ -357,7 +334,6 @@ function getCellFromPos(mx, my) {
     }
   } return null;
 }
-
 function getTargetCells(r, c, type) {
   var cells = [{r:r, c:c}], isL = boards[currentBoard][r].length === 10;
   var nb = { al: isL ? {r:r-1, c:c-1} : {r:r-1, c:c}, ar: isL ? {r:r-1, c:c} : {r:r-1, c:c+1}, bl: isL ? {r:r+1, c:c-1} : {r:r+1, c:c}, br: isL ? {r:r+1, c:c} : {r:r+1, c:c+1} };
@@ -369,15 +345,11 @@ function getTargetCells(r, c, type) {
   else if (type === "3-3") cells = [{r:r, c:c}, nb.al, nb.ar];
   return cells;
 }
-
-function getItemDetails(name) {
-    return categoryItems["군기"].concat(categoryItems["시설B"], commonA, boardSpecificA[currentBoard]).find(i => i.name === name);
-}
+function getItemDetails(name) { return categoryItems["군기"].concat(categoryItems["시설B"], commonA, boardSpecificA[currentBoard]).find(i => i.name === name); }
 
 window.onload = function() {
   boardCanvas = document.getElementById("board"); bctx = boardCanvas.getContext("2d");
   paletteCanvas = document.getElementById("palette"); pctx = paletteCanvas.getContext("2d");
-
   const startDrag = (e, isPalette) => {
     const pos = getAdjustedPos(e, isPalette ? paletteCanvas : boardCanvas);
     if (isPalette) {
@@ -397,24 +369,15 @@ window.onload = function() {
             placedItems.splice(i, 1); renderBoard(); renderEffects(); return;
           }
         }
-       snap = null; }
+      }
     }
   };
-
-  const moveDrag = (e) => {
-    if (!draggingItem) return;
-    const pos = getAdjustedPos(e, boardCanvas);
-    draggingItem.mx = pos.x; draggingItem.my = pos.y;
-    draggingItem.snap = getCellFromPos(pos.x, pos.y);
-    renderBoard();
-  };
-
+  const moveDrag = (e) => { if (draggingItem) { const pos = getAdjustedPos(e, boardCanvas); draggingItem.mx = pos.x; draggingItem.my = pos.y; draggingItem.snap = getCellFromPos(pos.x, pos.y); renderBoard(); } };
   const endDrag = () => {
     if (!draggingItem) return;
     if (draggingItem.snap) {
       var snap = draggingItem.snap;
-      var isDup = placedItems.some(i => i.name === draggingItem.name);
-      if(isDup) alert("이미 배치되었습니다.");
+      if(placedItems.some(i => i.name === draggingItem.name)) alert("이미 배치되었습니다.");
       else {
           var cells = getTargetCells(snap.r, snap.c, draggingItem.type), canP = true, board = boards[currentBoard];
           for(var i=0; i<cells.length; i++) {
@@ -427,18 +390,15 @@ window.onload = function() {
     }
     draggingItem = null; isMovingFromBoard = false; renderBoard(); renderEffects();
   };
-
   boardCanvas.addEventListener('mousedown', (e) => startDrag(e, false));
   paletteCanvas.addEventListener('mousedown', (e) => startDrag(e, true));
   window.addEventListener('mousemove', moveDrag);
   window.addEventListener('mouseup', endDrag);
-
   const opt = { passive: false };
   boardCanvas.addEventListener('touchstart', (e) => { startDrag(e, false); if(draggingItem) e.preventDefault(); }, opt);
   paletteCanvas.addEventListener('touchstart', (e) => { startDrag(e, true); if(draggingItem) e.preventDefault(); }, opt);
   window.addEventListener('touchmove', (e) => { if(draggingItem) { e.preventDefault(); moveDrag(e); } }, opt);
   window.addEventListener('touchend', (e) => { if(draggingItem) endDrag(); }, opt);
-
   setBoard('안행진');
 };
 
